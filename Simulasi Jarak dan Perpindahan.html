@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarak & Perpindahan — Laboratorium Gerak</title>
+<style>
+:root {
+  --site-primary: #174b75;
+  --site-on-primary: #ffffff;
+  --site-secondary: #d9f1ed;
+  --site-on-secondary: #163d43;
+  --site-background: #f3f7fb;
+  --site-on-background: #172a3a;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: var(--site-background); color: var(--site-on-background); }
+#app { min-height: 100vh; width: 100%; background-color: var(--site-background); color: var(--site-on-background); padding: calc(24px * var(--site-spacing-scale)); }
+main { max-width: 1100px; margin: 0 auto; }
+header { background: var(--site-primary); color: var(--site-on-primary); padding: calc(26px * var(--site-spacing-scale)); border-radius: calc(20px * var(--site-radius-scale)); position: relative; overflow: hidden; }
+header:after { content:""; position:absolute; width:220px; height:220px; border:35px solid rgba(255,255,255,.10); border-radius:50%; right:-55px; top:-100px; pointer-events:none; opacity:var(--site-decoration-opacity); }
+.eyebrow { text-transform: uppercase; letter-spacing: .13em; font-size: .72rem; font-weight: 800; opacity: .8; }
+h1 { font-family: var(--site-font-heading); font-size: calc(clamp(1.7rem, 4vw, 2.65rem) * var(--site-heading-scale)); line-height:1.1; margin: 10px 0; }
+header p { max-width: 650px; margin:0; line-height:1.6; opacity:.9; }
+.layout { display:grid; grid-template-columns:minmax(0, 1.6fr) minmax(280px, .9fr); gap:16px; margin-top:16px; align-items:start; }
+.panel { background: light-dark(#ffffff,#192a39); border:1px solid light-dark(#dce5ed,#35495a); border-radius:calc(18px * var(--site-radius-scale)); padding:calc(20px * var(--site-spacing-scale)); box-shadow:0 5px 20px rgba(20,48,72,.04); }
+.panel h2 { margin:0 0 6px; font-size:1.08rem; }
+.sub { margin:0 0 18px; font-size:.88rem; color:light-dark(#587084,#b6c6d3); line-height:1.5; }
+.scene { background:light-dark(#f2f8fc,#112332); border:1px solid light-dark(#d8e8f2,#2d4557); border-radius:14px; padding:12px 8px 6px; overflow:hidden; }
+svg { width:100%; display:block; }
+.legend { display:flex; flex-wrap:wrap; gap:14px; margin:12px 2px 0; font-size:.8rem; color:light-dark(#4a6376,#c0cfda); }
+.key { display:inline-flex; align-items:center; gap:6px; }
+.dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+.controls { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+button { border:1px solid light-dark(#cbd9e4,#42586a); background:light-dark(#fff,#243848); color:light-dark(#1b3448,#f0f6fb); border-radius:10px; padding:10px 14px; font:inherit; font-size:.88rem; font-weight:700; cursor:pointer; transition:transform .12s, background .12s; }
+button:hover { transform:translateY(-1px); }
+button:focus-visible,input:focus-visible,select:focus-visible { outline:3px solid #f4a261; outline-offset:2px; }
+button.primary { background:var(--site-primary); border-color:var(--site-primary); color:var(--site-on-primary); }
+button:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+.metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.metric { padding:14px; border-radius:13px; background:light-dark(#f2f7fb,#203443); border:1px solid light-dark(#e0e9f0,#344b5d); }
+.metric .label { font-size:.78rem; color:light-dark(#597184,#b9c9d5); }
+.metric .value { font-size:1.8rem; font-weight:850; letter-spacing:-.04em; margin-top:4px; }
+.metric .unit { font-size:.85rem; font-weight:650; letter-spacing:0; }
+.metric.distance { border-top:4px solid #ef8354; }
+.metric.displacement { border-top:4px solid #3984d6; }
+.readouts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.readout { font-size:.83rem; color:light-dark(#536d80,#c1cfda); }
+.readout strong { display:block; font-size:1rem; color:light-dark(#1c3448,#f4f8fb); margin-top:4px; }
+hr { border:0; border-top:1px solid light-dark(#e0e8ef,#35495a); margin:18px 0; }
+.field { margin-top:14px; }
+.field label { display:flex; justify-content:space-between; gap:12px; font-size:.86rem; font-weight:700; margin-bottom:8px; }
+input[type=range] { width:100%; accent-color:var(--site-primary); }
+select { width:100%; padding:10px; border-radius:10px; border:1px solid light-dark(#cbd9e4,#42586a); background:light-dark(#fff,#243848); color:inherit; font:inherit; }
+.note { background:var(--site-secondary); color:var(--site-on-secondary); padding:13px 14px; border-radius:12px; font-size:.86rem; line-height:1.55; margin-top:14px; }
+.note strong { display:block; margin-bottom:3px; }
+.history { width:100%; border-collapse:collapse; font-size:.82rem; margin-top:12px; }
+.history th,.history td { padding:9px 6px; text-align:left; border-bottom:1px solid light-dark(#e1e9ef,#35495a); }
+.history th { color:light-dark(#5d7486,#bdcbd6); font-weight:700; }
+.small { font-size:.78rem; color:light-dark(#5d7486,#bdcbd6); line-height:1.5; }
+footer { padding:18px 4px 4px; text-align:center; font-size:.78rem; color:light-dark(#688094,#9fb3c2); }
+@media(max-width:780px) { #app{padding:14px;} .layout{grid-template-columns:1fr;} header{padding:22px;} .panel{padding:16px;} }
+@media(prefers-reduced-motion:reduce) { *,*:before,*:after { transition:none!important; scroll-behavior:auto!important; } }
+</style>
+</head>
+<body>
+<div id="app" data-sites-preview-theme="custom">
+<main>
+<header>
+  <div class="eyebrow">Laboratorium Fisika · Kinematika</div>
+  <h1>Jarak &amp; Perpindahan</h1>
+  <p>Gerakkan pelari maju dan mundur pada garis bilangan. Amati bagaimana total lintasan dan perubahan posisi menghasilkan dua besaran yang berbeda.</p>
+</header>
+<div class="layout">
+<section class="panel" aria-labelledby="sceneTitle">
+  <h2 id="sceneTitle">Lintasan gerak</h2>
+  <p class="sub">Posisi diukur dalam meter. Titik awal ditandai dengan lingkaran hijau.</p>
+  <div class="scene">
+    <svg id="track" viewBox="0 0 720 250" role="img" aria-label="Garis bilangan dari minus sepuluh hingga sepuluh meter, dengan pelari dan penanda titik awal dan posisi saat ini.">
+      <defs><marker id="arrowOrange" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ef8354"/></marker><marker id="arrowBlue" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3984d6"/></marker></defs>
+      <line x1="48" y1="143" x2="672" y2="143" stroke="currentColor" stroke-opacity=".55" stroke-width="2"/>
+      <path d="M48 143 l10 -6 v12 z M672 143 l-10 -6 v12 z" fill="currentColor" opacity=".6"/>
+      <g id="ticks"></g>
+      <line id="distanceArrow" x1="360" y1="95" x2="360" y2="95" stroke="#ef8354" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowOrange)"/>
+      <line id="dispArrow" x1="360" y1="116" x2="360" y2="116" stroke="#3984d6" stroke-width="4" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+      <g id="startMark"><circle cx="360" cy="143" r="8" fill="#36a77a" stroke="#fff" stroke-width="2"/><text x="360" y="177" text-anchor="middle" font-size="12" fill="currentColor" font-weight="700">Awal</text></g>
+      <g id="runner" transform="translate(360 0)"><circle cx="0" cy="116" r="10" fill="#f4b942" stroke="#7c5810" stroke-width="1.5"/><path d="M0 128 L0 148 M0 134 L-11 143 M0 134 L11 141 M0 148 L-9 160 M0 148 L10 158" stroke="#f4b942" stroke-width="5" stroke-linecap="round"/><circle cx="0" cy="143" r="4" fill="#174b75"/></g>
+      <text id="distanceLabel" x="365" y="78" font-size="13" fill="#ef8354" font-weight="800">Jarak: 0 m</text>
+      <text id="dispLabel" x="365" y="107" font-size="13" fill="#3984d6" font-weight="800">Perpindahan: 0 m</text>
+      <text x="360" y="222" text-anchor="middle" font-size="12" fill="currentColor" opacity=".7">Posisi (m)</text>
+    </svg>
+  </div>
+  <div class="legend"><span class="key"><i class="dot" style="background:#36a77a"></i> Posisi awal</span><span class="key"><i class="dot" style="background:#f4b942"></i> Pelari</span><span class="key"><i class="dot" style="background:#ef8354"></i> Jarak total</span><span class="key"><i class="dot" style="background:#3984d6"></i> Perpindahan</span></div>
+  <div class="controls">
+    <button class="primary" id="forward">▶ Maju 1 m</button>
+    <button id="backward">◀ Mundur 1 m</button>
+    <button id="return">↩ Kembali ke awal</button>
+    <button id="reset">⟲ Reset</button>
+  </div>
+  <div class="field"><label for="target">Geser pelari <span id="targetText">Posisi 0 m</span></label><input id="target" type="range" min="-10" max="10" step="1" value="0"></div>
+  <div class="field"><label for="start">Atur posisi awal</label><select id="start"><option value="0">0 m</option><option value="-5">−5 m</option><option value="5">+5 m</option><option value="-10">−10 m</option><option value="10">+10 m</option></select></div>
+</section>
+<aside class="panel" aria-labelledby="resultTitle">
+  <h2 id="resultTitle">Hasil pengamatan</h2>
+  <p class="sub">Nilai diperbarui setiap kali posisi pelari berubah.</p>
+  <div class="metrics">
+    <div class="metric distance"><div class="label">Jarak total</div><div class="value"><span id="distance">0</span> <span class="unit">m</span></div></div>
+    <div class="metric displacement"><div class="label">Perpindahan</div><div class="value"><span id="displacement">0</span> <span class="unit">m</span></div></div>
+  </div>
+  <div class="readouts"><div class="readout">Posisi awal<strong id="initialRead">0 m</strong></div><div class="readout">Posisi sekarang<strong id="currentRead">0 m</strong></div><div class="readout">Arah perpindahan<strong id="directionRead">Tidak ada</strong></div><div class="readout">Jumlah langkah<strong id="stepsRead">0 langkah</strong></div></div>
+  <div class="note" id="insight"><strong>Amati!</strong>Pelari belum bergerak. Jarak dan perpindahannya masih nol.</div>
+  <hr>
+  <h2>Riwayat gerak</h2>
+  <p class="sub" style="margin-bottom:4px">Setiap perubahan posisi tercatat sebagai satu langkah pengamatan.</p>
+  <div style="max-height:220px;overflow:auto"><table class="history"><thead><tr><th>Langkah</th><th>Posisi</th><th>Jarak total</th><th>Perpindahan</th></tr></thead><tbody id="history"><tr><td>0</td><td>0 m</td><td>0 m</td><td>0 m</td></tr></tbody></table></div>
+  <div class="controls"><button id="clearHistory">Hapus riwayat</button></div>
+</aside>
+</div>
+<section class="panel" style="margin-top:16px">
+  <h2>Uji pemahaman</h2>
+  <p class="sub">Coba gerakkan pelari dari 0 m ke +5 m, lalu kembali ke 0 m. Bandingkan jarak total dengan perpindahan akhirnya.</p>
+  <div class="field"><label for="quiz">Setelah kembali ke titik awal, berapa perpindahannya?</label><select id="quiz"><option value="">Pilih jawaban…</option><option value="0">0 m</option><option value="5">5 m</option><option value="10">10 m</option></select></div>
+  <div class="controls"><button class="primary" id="check">Periksa jawaban</button></div>
+  <div class="note" id="feedback" aria-live="polite"><strong>Petunjuk</strong>Perpindahan bergantung pada posisi awal dan posisi akhir, bukan panjang seluruh lintasan.</div>
+</section>
+<footer>Simulasi pembelajaran interaktif · Jarak adalah panjang lintasan; perpindahan adalah perubahan posisi dari awal ke akhir.</footer>
+</main>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let start = 0, pos = 0, distance = 0, steps = 0, history = [{step:0,pos:0,distance:0,disp:0}];
+  const min = -10, max = 10, left = 48, right = 672;
+  const x = value => left + (value - min) / (max - min) * (right - left);
+  const fmt = value => value > 0 ? `+${value}` : `${value}`;
+  function drawTicks() {
+    let markup = '';
+    for (let i=min;i<=max;i++) {
+      const xx=x(i), major=i%5===0;
+      markup += `<line x1="${xx}" y1="${major?133:138}" x2="${xx}" y2="${major?153:148}" stroke="currentColor" stroke-opacity="${major?.8:.45}" stroke-width="${major?2:1}"/><text x="${xx}" y="${major?196:190}" text-anchor="middle" font-size="${major?12:10}" fill="currentColor" opacity="${major?1:.65}">${i}</text>`;
+    }
+    $('ticks').innerHTML = markup;
+  }
+  function updateRecord() {
+    $('target').value = pos;
+    $('targetText').textContent = `Posisi ${fmt(pos)} m`;
+    $('distance').textContent = distance;
+    const disp = pos - start;
+    $('displacement').textContent = Math.abs(disp);
+    $('initialRead').textContent = `${fmt(start)} m`;
+    $('currentRead').textContent = `${fmt(pos)} m`;
+    $('directionRead').textContent = disp > 0 ? 'Ke kanan (+)' : disp < 0 ? 'Ke kiri (−)' : 'Tidak ada';
+    $('stepsRead').textContent = `${steps} langkah`;
+    $('runner').setAttribute('transform', `translate(${x(pos)} 0)`);
+    $('startMark').querySelector('circle').setAttribute('cx',x(start));
+    $('startMark').querySelector('text').setAttribute('x',x(start));
+    const da=$('distanceArrow'), xa=x(start), xb=x(pos);
+    da.setAttribute('x1',xa); da.setAttribute('x2',xb===xa?xa+1:xb);
+    da.setAttribute('y1',93); da.setAttribute('y2',93);
+    da.style.opacity = distance === 0 ? '.2' : '1';
+    const pa=$('dispArrow'); pa.setAttribute('x1',xa); pa.setAttribute('x2',xb===xa?xa+1:xb); pa.setAttribute('y1',116); pa.setAttribute('y2',116); pa.style.opacity=disp===0?'.2':'1';
+    $('distanceLabel').setAttribute('x',Math.min(570,Math.max(55,(xa+xb)/2-35))); $('distanceLabel').textContent=`Jarak: ${distance} m`;
+    $('dispLabel').setAttribute('x',Math.min(570,Math.max(55,(xa+xb)/2-35))); $('dispLabel').textContent=`Perpindahan: ${fmt(disp)} m`;
+    const insight = disp===0 && distance>0
+      ? `<strong>Kembali ke titik awal!</strong>Jarak total ${distance} m, tetapi perpindahan 0 m karena posisi akhir sama dengan posisi awal.`
+      : distance===0
+      ? `<strong>Amati!</strong>Pelari belum menempuh lintasan. Jarak dan perpindahan masih nol.`
+      : `<strong>Bandingkan kedua besaran.</strong>Jarak total ${distance} m, sedangkan besar perpindahan ${Math.abs(disp)} m. Jarak menjumlahkan lintasan; perpindahan hanya membandingkan posisi awal dan akhir.`;
+    $('insight').innerHTML=insight;
+    $('forward').disabled=pos>=max; $('backward').disabled=pos<=min;
+    $('history').innerHTML=history.slice().reverse().map(r=>`<tr><td>${r.step}</td><td>${fmt(r.pos)} m</td><td>${r.distance} m</td><td>${fmt(r.disp)} m</td></tr>`).join('');
+  }
+  function moveTo(next) {
+    next=Math.max(min,Math.min(max,Number(next)));
+    if(next===pos) return;
+    distance += Math.abs(next-pos); pos=next; steps++;
+    history.push({step:steps,pos,distance,disp:pos-start});
+    updateRecord();
+  }
+  function resetAll() { start=0;pos=0;distance=0;steps=0;history=[{step:0,pos:0,distance:0,disp:0}];$('start').value='0';updateRecord(); }
+  $('forward').addEventListener('click',()=>moveTo(pos+1));
+  $('backward').addEventListener('click',()=>moveTo(pos-1));
+  $('return').addEventListener('click',()=>moveTo(start));
+  $('reset').addEventListener('click',resetAll);
+  $('target').addEventListener('input',e=>moveTo(e.target.value));
+  $('start').addEventListener('change',e=>{start=Number(e.target.value);pos=start;distance=0;steps=0;history=[{step:0,pos,distance,disp:0}];updateRecord();});
+  $('clearHistory').addEventListener('click',()=>{history=[{step:steps,pos,distance,disp:pos-start}];updateRecord();});
+  $('check').addEventListener('click',()=>{const v=$('quiz').value, f=$('feedback');if(!v){f.innerHTML='<strong>Pilih jawaban dahulu.</strong>Kemudian periksa hasil pemahamanmu.';return;}if(v==='0'){f.innerHTML='<strong>Benar!</strong>Jika posisi akhir kembali sama dengan posisi awal, perpindahan adalah 0 m. Jika bergerak 5 m pergi lalu 5 m pulang, jarak totalnya 10 m.';}else{f.innerHTML='<strong>Belum tepat.</strong>Perpindahan dihitung dari posisi akhir dikurangi posisi awal. Saat kembali ke titik awal, perubahan posisinya nol.';}});
+  drawTicks(); updateRecord();
+})();
+</script>
+</body>
+</html>
